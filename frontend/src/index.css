@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FitStrong Fitness Design System - Modern Orange & Dark Theme */
+
+@layer base {
+  :root {
+    /* Core Brand Colors */
+    --background: 220 14% 8%;
+    --foreground: 0 0% 100%;
+
+    /* Card Components */
+    --card: 220 14% 12%;
+    --card-foreground: 0 0% 100%;
+
+    /* Popover Components */
+    --popover: 220 14% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primary Orange Brand */
+    --primary: 16 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 16 100% 70%;
+
+    /* Secondary Grays */
+    --secondary: 220 14% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted Elements */
+    --muted: 220 14% 16%;
+    --muted-foreground: 220 9% 65%;
+
+    /* Accent Orange */
+    --accent: 16 100% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive States */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Form Elements */
+    --border: 220 14% 24%;
+    --input: 220 14% 16%;
+    --ring: 16 100% 60%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(16 100% 60%), hsl(16 100% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(16 100% 60%) 0%, hsl(20 100% 65%) 100%);
+    
+    /* Shadows */
+    --shadow-glow: 0 0 30px hsl(16 100% 60% / 0.3);
+    --shadow-card: 0 10px 40px -10px hsl(220 14% 4% / 0.5);
+    --shadow-button: 0 4px 15px hsl(16 100% 60% / 0.4);
+    
+    /* Overlays */
+    --overlay-dark: hsl(220 14% 8% / 0.85);
+    --overlay-gradient: linear-gradient(135deg, hsl(220 14% 8% / 0.9), hsl(220 14% 8% / 0.7));
+
+    /* Animation Values */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .dark {
+    /* Dark mode uses same fitness theme */
+    --background: 220 14% 6%;
+    --card: 220 14% 10%;
+    --muted: 220 14% 14%;
+    --border: 220 14% 20%;
+    --input: 220 14% 14%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-inter antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Hero Text Styles */
+  .hero-title {
+    @apply text-5xl md:text-7xl xl:text-8xl font-black leading-tight tracking-tight;
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--primary-glow)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    @apply text-xl md:text-2xl font-medium text-muted-foreground leading-relaxed;
+  }
+
+  /* Button Variants */
+  .btn-hero {
+    background: var(--gradient-hero);
+    @apply text-white font-bold px-8 py-4 rounded-xl shadow-[var(--shadow-button)] 
+           hover:shadow-[var(--shadow-glow)] transform hover:scale-105 
+           transition-all duration-300 ease-out;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary/50 backdrop-blur-sm text-foreground font-semibold px-6 py-3 
+           rounded-lg border border-border hover:bg-secondary/70 
+           transition-all duration-300;
+  }
+
+  /* Card Styles */
+  .glass-card {
+    @apply bg-card/90 backdrop-blur-xl border border-border/50 
+           shadow-[var(--shadow-card)] rounded-2xl;
+  }
+
+  /* Input Styles */
+  .input-modern {
+    @apply bg-input/50 border-border/50 text-foreground placeholder:text-muted-foreground
+           focus:border-primary focus:ring-2 focus:ring-primary/20 
+           transition-all duration-300 rounded-lg;
+  }
+
+  /* Overlay Styles */
+  .hero-overlay {
+    background: var(--overlay-gradient);
+  }
+
+  /* Animation Classes */
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  to {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.6);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
