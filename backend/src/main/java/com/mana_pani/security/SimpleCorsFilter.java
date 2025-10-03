@@ -24,7 +24,7 @@ public class SimpleCorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
 
         String origin = request.getHeader("Origin");
-        if (allowedOrigins.contains(origin)) {
+        if (origin != null && (allowedOrigins.contains(origin) || origin.endsWith(".vercel.app"))) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
 
