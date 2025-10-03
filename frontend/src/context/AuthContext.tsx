@@ -1,9 +1,8 @@
-import { createContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, type ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 interface AuthContextType {
-    token: string | null;
-    user: any | null;
+    authTokens: { token: string | null; user: any | null; };
     login: (token: string) => void;
     logout: () => void;
 }
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ token, user, login, logout }}>
+        <AuthContext.Provider value={{ authTokens: { token, user }, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

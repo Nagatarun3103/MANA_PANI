@@ -3,9 +3,9 @@ package com.mana_pani.security.jwt;
 import com.mana_pani.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -19,39 +19,33 @@ import java.util.stream.Collectors;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
+    private static final String jwtSecret = "your-super-secret-key-that-is-long-enough-for-hs256";
+    private static final Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
     private final long jwtExpirationMs = 86400000; // 24 hours
 
     public String generateJwtToken(Authentication authentication) {
-
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
+                .setSubject(userPrincipal.getUsername())
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(key(), SignatureAlgorithm.HS256)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    private Key key() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
-    }
-
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key()).build()
+        return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
+            Jwts.parserBuilder().setSigningKey(key).build().parse(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
@@ -61,6 +55,8 @@ public class JwtUtils {
             logger.error("JWT token is unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
+        } catch (SignatureException e) {
+            logger.error("Invalid JWT signature: {}", e.getMessage());
         }
 
         return false;

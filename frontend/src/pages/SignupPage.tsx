@@ -19,8 +19,12 @@ const SignupPage = () => {
         try {
             await api.post('/auth/signup', { username, email, password, roles: ['user'] });
             navigate('/login');
-        } catch (err) {
-            setError('Failed to sign up. Please try a different username or email.');
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                setError(err.response.data.message);
+            } else {
+                setError('Failed to sign up. Please try a different username or email.');
+            }
         }
     };
 

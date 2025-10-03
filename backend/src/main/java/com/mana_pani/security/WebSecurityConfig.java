@@ -1,5 +1,8 @@
 package com.mana_pani.security;
 
+import com.mana_pani.security.jwt.AuthEntryPointJwt;
+import com.mana_pani.security.jwt.AuthTokenFilter;
+import com.mana_pani.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,17 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher; // Import AntPathRequestMatcher
-// import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher; // No longer needed
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-// import org.springframework.web.servlet.handler.HandlerMappingIntrospector; // No longer needed
-
-import java.util.Arrays;
-import com.mana_pani.security.services.UserDetailsServiceImpl;
-import com.mana_pani.security.jwt.AuthEntryPointJwt;
-import com.mana_pani.security.jwt.AuthTokenFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableMethodSecurity
@@ -42,10 +35,8 @@ public class WebSecurityConfig {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 
@@ -60,25 +51,14 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception { // Removed HandlerMappingIntrospector
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll() // Use AntPathRequestMatcher for auth endpoints
+                        .requestMatchers(new AntPathRequestMatcher("/test/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/goals/**")).hasRole("USER")
                         .requestMatchers(new AntPathRequestMatcher("/api/health/**")).hasRole("USER")
@@ -87,7 +67,6 @@ public class WebSecurityConfig {
                 .headers(headers -> headers.frameOptions().disable());
 
         http.authenticationProvider(authenticationProvider());
-
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -10,4 +10,6 @@ public class HealthRecordDto {
     private String category;
     private String title;
     private String content;
+    private String imageUrl;
+    private String diseaseAssociation;
 }

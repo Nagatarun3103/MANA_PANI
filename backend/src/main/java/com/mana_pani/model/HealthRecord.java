@@ -21,6 +21,10 @@ public class HealthRecord {
     @Lob
     private String content;
 
+    private String imageUrl;
+
+    private String diseaseAssociation;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore

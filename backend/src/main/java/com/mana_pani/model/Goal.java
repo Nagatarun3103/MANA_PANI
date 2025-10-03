@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Table(name = "goals")
@@ -18,10 +18,11 @@ public class Goal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private String goalName; // Renamed from title
     private String description;
-    private LocalDate dueDate;
-    private boolean completed = false;
+    private java.util.Date deadline; // Changed from LocalDate to Date
+    private String type; // Added for Short, Financial, Important work
+    private String status; // Added for To Finish, Completed
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

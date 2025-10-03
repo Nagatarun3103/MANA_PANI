@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Target, Heart } from "lucide-react";
+import { Target, Heart, MessageSquare } from "lucide-react";
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ const DashboardPage = () => {
   const domains = [
     { title: "Goal", icon: Target, path: "/goals" },
     { title: "Health", icon: Heart, path: "/health" },
+    { title: "Suggestions", icon: MessageSquare, path: "/suggestions" },
   ];
 
   return (

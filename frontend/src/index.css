@@ -80,7 +80,9 @@
   }
 
   body {
-    @apply bg-background text-foreground font-inter antialiased;
+    background: linear-gradient(to right top, #e0eafc, #cfdef3);
+    color: #333;
+    @apply font-inter antialiased;
   }
 
   html {

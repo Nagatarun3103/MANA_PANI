@@ -15,7 +15,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/schedule")
 public class ScheduleController {

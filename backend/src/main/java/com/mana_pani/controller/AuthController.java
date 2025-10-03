@@ -10,7 +10,7 @@ import com.mana_pani.model.User;
 import com.mana_pani.repository.RoleRepository;
 import com.mana_pani.repository.UserRepository;
 import com.mana_pani.security.jwt.JwtUtils;
-import com.mana_pani.security.services.EmailService;
+import com.mana_pani.service.AppEmailService;
 import com.mana_pani.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -52,7 +51,7 @@ public class AuthController {
     JwtUtils jwtUtils;
 
     @Autowired
-    EmailService emailService;
+    AppEmailService emailService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -121,6 +120,7 @@ public class AuthController {
 
         user.setRoles(roles);
         userRepository.save(user);
+        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
@@ -142,7 +142,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        emailService.sendPasswordResetEmail(user.getEmail(), token);
+        emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), token);
 
         return ResponseEntity.ok(new MessageResponse("A password reset link has been sent to your email address."));
     }

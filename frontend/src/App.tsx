@@ -8,6 +8,9 @@ import HealthPage from './pages/HealthPage';
 import PublicPage from './pages/PublicPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import TaskSurveyPage from './pages/TaskSurveyPage';
+import SuggestionsPage from './pages/SuggestionsPage';
+
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -24,6 +27,9 @@ function App() {
                         <Route path="/dashboard" element={<DashboardPage />} />
                         <Route path="/goals" element={<GoalPage />} />
                         <Route path="/health" element={<HealthPage />} />
+                        <Route path="/suggestions" element={<SuggestionsPage />} />
+                        <Route path="/survey" element={<TaskSurveyPage />} />
+
                     </Route>
                     <Route path="*" element={<LoginPage />} />
                 </Routes>

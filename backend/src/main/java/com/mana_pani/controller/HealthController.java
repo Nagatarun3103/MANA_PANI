@@ -10,6 +10,7 @@ import com.mana_pani.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -29,16 +30,17 @@ public class HealthController {
     private UserRepository userRepository;
 
     @GetMapping
-    public ResponseEntity<List<HealthRecordDto>> getUserHealthRecords() {
-        User user = getCurrentUser();
-        List<HealthRecord> records = healthRecordRepository.findByUser(user);
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<List<HealthRecordDto>> getAllHealthRecords() {
+        List<HealthRecord> records = healthRecordRepository.findAll();
         List<HealthRecordDto> recordDtos = records.stream().map(this::convertToDto).collect(Collectors.toList());
         return ResponseEntity.ok(recordDtos);
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HealthRecordDto> createHealthRecord(@RequestBody HealthRecordDto recordDto) {
-        User user = getCurrentUser();
+        User user = getCurrentUser(); // The record will be associated with the admin who created it.
         HealthRecord record = convertToEntity(recordDto);
         record.setUser(user);
         HealthRecord savedRecord = healthRecordRepository.save(record);
@@ -46,31 +48,31 @@ public class HealthController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HealthRecordDto> updateHealthRecord(@PathVariable Long id, @RequestBody HealthRecordDto recordDto) {
-        User user = getCurrentUser();
         return healthRecordRepository.findById(id)
-                .filter(record -> record.getUser().getId().equals(user.getId()))
                 .map(record -> {
                     record.setCategory(recordDto.getCategory());
                     record.setTitle(recordDto.getTitle());
                     record.setContent(recordDto.getContent());
+                    record.setImageUrl(recordDto.getImageUrl());
+                    record.setDiseaseAssociation(recordDto.getDiseaseAssociation());
                     HealthRecord updatedRecord = healthRecordRepository.save(record);
                     return ResponseEntity.ok(convertToDto(updatedRecord));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> deleteHealth(@PathVariable Long id) {
         return healthRecordRepository.findById(id)
             .map(record -> {
                 healthRecordRepository.delete(record);
-                // Explicitly tell Java this is ResponseEntity<Void>
                 return ResponseEntity.<Void>noContent().build();
             })
-            .orElse(ResponseEntity.<Void>notFound().build()); // Also explicit here
+            .orElse(ResponseEntity.<Void>notFound().build());
     }
-
-
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -85,6 +87,8 @@ public class HealthController {
         dto.setCategory(record.getCategory());
         dto.setTitle(record.getTitle());
         dto.setContent(record.getContent());
+        dto.setImageUrl(record.getImageUrl());
+        dto.setDiseaseAssociation(record.getDiseaseAssociation());
         return dto;
     }
 
@@ -93,6 +97,8 @@ public class HealthController {
         record.setCategory(dto.getCategory());
         record.setTitle(dto.getTitle());
         record.setContent(dto.getContent());
+        record.setImageUrl(dto.getImageUrl());
+        record.setDiseaseAssociation(dto.getDiseaseAssociation());
         return record;
     }
 }

@@ -41,7 +41,6 @@ public class ManaPaniApplication {
 
             if (userRepository.findByUsername("admin").isEmpty()) {
                 Set<Role> roles = new HashSet<>();
-                roles.add(roleRepository.findByName(ERole.ROLE_USER).get());
                 roles.add(roleRepository.findByName(ERole.ROLE_ADMIN).get());
                 User admin = new User("admin", "admin@manapani.com", passwordEncoder.encode("password"));
                 admin.setRoles(roles);
