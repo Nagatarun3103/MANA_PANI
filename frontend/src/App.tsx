@@ -13,6 +13,7 @@ import SuggestionsPage from './pages/SuggestionsPage';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
+// Force new build on Vercel
 function App() {
     return (
         <AuthProvider>
