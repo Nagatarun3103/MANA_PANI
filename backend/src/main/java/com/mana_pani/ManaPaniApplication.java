@@ -39,10 +39,11 @@ public class ManaPaniApplication {
                 userRepository.save(user);
             }
 
-            if (userRepository.findByUsername("admin").isEmpty()) {
+            if (userRepository.findByUsername("GRS").isEmpty()) {
                 Set<Role> roles = new HashSet<>();
+                roles.add(roleRepository.findByName(ERole.ROLE_USER).get());
                 roles.add(roleRepository.findByName(ERole.ROLE_ADMIN).get());
-                User admin = new User("admin", "admin@manapani.com", passwordEncoder.encode("password"));
+                User admin = new User("GRS", "grs@manapani.com", passwordEncoder.encode("GRS_Mahi"));
                 admin.setRoles(roles);
                 userRepository.save(admin);
             }
