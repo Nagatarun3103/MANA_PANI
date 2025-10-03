@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, type ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import api from '../services/api'; // Import the api instance
 
 interface AuthContextType {
     authTokens: { token: string | null; user: any | null; };
@@ -18,12 +19,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
                 const decodedUser = jwtDecode(token);
                 setUser(decodedUser);
+                // Set Authorization header for all future requests
+                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             } catch (error) {
                 console.error("Invalid token");
                 logout();
             }
         } else {
             setUser(null);
+            // Remove Authorization header if no token
+            delete api.defaults.headers.common['Authorization'];
         }
     }, [token]);
 
