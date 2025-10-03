@@ -60,8 +60,8 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/test/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/api/goals/**")).hasRole("USER")
-                        .requestMatchers(new AntPathRequestMatcher("/api/health/**")).hasRole("USER")
+                        .requestMatchers(new AntPathRequestMatcher("/api/goals/**")).authenticated()
+                        .requestMatchers(new AntPathRequestMatcher("/api/health/**")).authenticated()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions().disable());
