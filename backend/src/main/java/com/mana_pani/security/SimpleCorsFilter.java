@@ -15,7 +15,7 @@ import java.util.List;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SimpleCorsFilter implements Filter {
 
-    private final List<String> allowedOrigins = Arrays.asList("http://localhost:5173", "http://localhost:5174", "https://mana-pani.vercel.app");
+    private final List<String> allowedOrigins = Arrays.asList("http://localhost:5173", "http://localhost:5174", "https://mana-pani.vercel.app", "https://mana-pani-amgu6zu9q-naga-tarun-nakkalas-projects.vercel.app");
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
