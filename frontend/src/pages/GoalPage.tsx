@@ -9,9 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, intervalToDuration } from "date-fns";
 import { cn } from "@/lib/utils";
-import axios from "axios"; // Import axios directly
-
-const API_BASE_URL = "http://localhost:8080/api/goals";
+import api from "../services/api"; // Import the configured api instance
 
 const isValidDate = (date: any): date is Date => {
   return date instanceof Date && !isNaN(date.getTime());
@@ -27,20 +25,10 @@ const GoalPage = () => {
   const [globalSelectedGoalId, setGlobalSelectedGoalId] = useState<number | null>(null);
   const [globalCountdown, setGlobalCountdown] = useState<any>(null);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    console.log("Manually attaching token:", token);
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-  };
-
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const response = await axios.get(API_BASE_URL, getAuthHeaders());
+        const response = await api.get("/api/goals");
         setGoals(response.data);
       } catch (error) {
         console.error("Error fetching goals:", error);
@@ -106,10 +94,10 @@ const GoalPage = () => {
 
     try {
       if (editingGoalId) {
-        const response = await axios.put(`${API_BASE_URL}/${editingGoalId}`, goalData, getAuthHeaders());
+        const response = await api.put(`/api/goals/${editingGoalId}`, goalData);
         setGoals(goals.map((g) => (g.id === editingGoalId ? response.data : g)));
       } else {
-        const response = await axios.post(API_BASE_URL, goalData, getAuthHeaders());
+        const response = await api.post("/api/goals", goalData);
         setGoals([...goals, response.data]);
       }
       setModalOpen(false);
@@ -122,7 +110,7 @@ const GoalPage = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`${API_BASE_URL}/${id}`, getAuthHeaders());
+      await api.delete(`/api/goals/${id}`);
       const newGoals = goals.filter((goal) => goal.id !== id);
       setGoals(newGoals);
       localStorage.setItem("goals", JSON.stringify(newGoals));
