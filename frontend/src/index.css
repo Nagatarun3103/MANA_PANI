@@ -80,7 +80,8 @@
   }
 
   body {
-    background: linear-gradient(to right top, #e0eafc, #cfdef3);
+    /* The background is now handled by the AnimatedBackground component */
+    background-color: transparent;
     color: #333;
     @apply font-inter antialiased;
   }
