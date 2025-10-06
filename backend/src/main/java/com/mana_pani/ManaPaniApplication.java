@@ -12,9 +12,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,25 +33,21 @@ public class ManaPaniApplication {
         @Value("${JDBC_DATABASE_URL}")
         private String dbUrl;
 
-        @Value("${JDBC_DATABASE_USERNAME}")
-        private String username;
-
-        @Value("${JDBC_DATABASE_PASSWORD}")
-        private String password;
-
         @Bean
-        public DataSource dataSource() {
-            // Render's URL is in the format "postgresql://user:password@host:port/database"
-            // JDBC requires "jdbc:postgresql://host:port/database"
-            String correctedDbUrl = dbUrl.replace("postgresql://", "jdbc:postgresql://");
-            
-            HikariConfig config = new HikariConfig();
-            config.setDriverClassName("org.postgresql.Driver");
-            config.setJdbcUrl(correctedDbUrl);
-            config.setUsername(username);
-            config.setPassword(password);
-            config.addDataSourceProperty("sslmode", "require");
-            return new HikariDataSource(config);
+        public DataSource dataSource() throws URISyntaxException {
+            URI dbUri = new URI(dbUrl);
+
+            String username = dbUri.getUserInfo().split(":")[0];
+            String password = dbUri.getUserInfo().split(":")[1];
+            String jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() + "?sslmode=require";
+
+            HikariDataSource dataSource = new HikariDataSource();
+            dataSource.setDriverClassName("org.postgresql.Driver");
+            dataSource.setJdbcUrl(jdbcUrl);
+            dataSource.setUsername(username);
+            dataSource.setPassword(password);
+
+            return dataSource;
         }
     }
 
