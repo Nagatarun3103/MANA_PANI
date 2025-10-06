@@ -10,12 +10,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
-import com.zaxxer.hikari.HikariDataSource;
-import javax.sql.DataSource;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,30 +19,6 @@ public class ManaPaniApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ManaPaniApplication.class, args);
-    }
-
-    @Configuration
-    public class DataSourceConfig {
-
-        @Value("${JDBC_DATABASE_URL}")
-        private String dbUrl;
-
-        @Bean
-        public DataSource dataSource() throws URISyntaxException {
-            URI dbUri = new URI(dbUrl);
-
-            String username = dbUri.getUserInfo().split(":")[0];
-            String password = dbUri.getUserInfo().split(":")[1];
-            String jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() + "?sslmode=require";
-
-            HikariDataSource dataSource = new HikariDataSource();
-            dataSource.setDriverClassName("org.postgresql.Driver");
-            dataSource.setJdbcUrl(jdbcUrl);
-            dataSource.setUsername(username);
-            dataSource.setPassword(password);
-
-            return dataSource;
-        }
     }
 
     @Bean
