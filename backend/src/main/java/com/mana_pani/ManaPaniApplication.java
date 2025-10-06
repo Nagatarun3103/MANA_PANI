@@ -10,6 +10,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +24,33 @@ public class ManaPaniApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ManaPaniApplication.class, args);
+    }
+
+    @Configuration
+    public class DataSourceConfig {
+
+        @Value("${JDBC_DATABASE_URL}")
+        private String dbUrl;
+
+        @Value("${JDBC_DATABASE_USERNAME}")
+        private String username;
+
+        @Value("${JDBC_DATABASE_PASSWORD}")
+        private String password;
+
+        @Bean
+        public DataSource dataSource() {
+            // Render's URL is in the format "postgres://user:password@host:port/database"
+            // JDBC requires "jdbc:postgresql://host:port/database"
+            String correctedDbUrl = dbUrl.replace("postgres://", "jdbc:postgresql://");
+            
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(correctedDbUrl);
+            config.setUsername(username);
+            config.setPassword(password);
+            config.addDataSourceProperty("sslmode", "require");
+            return new HikariDataSource(config);
+        }
     }
 
     @Bean
