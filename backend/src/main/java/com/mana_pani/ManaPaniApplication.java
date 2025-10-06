@@ -40,9 +40,9 @@ public class ManaPaniApplication {
 
         @Bean
         public DataSource dataSource() {
-            // Render's URL is in the format "postgres://user:password@host:port/database"
+            // Render's URL is in the format "postgresql://user:password@host:port/database"
             // JDBC requires "jdbc:postgresql://host:port/database"
-            String correctedDbUrl = dbUrl.replace("postgres://", "jdbc:postgresql://");
+            String correctedDbUrl = dbUrl.replace("postgresql://", "jdbc:postgresql://");
             
             HikariConfig config = new HikariConfig();
             config.setDriverClassName("org.postgresql.Driver");
