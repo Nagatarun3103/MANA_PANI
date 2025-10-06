@@ -45,6 +45,7 @@ public class ManaPaniApplication {
             String correctedDbUrl = dbUrl.replace("postgres://", "jdbc:postgresql://");
             
             HikariConfig config = new HikariConfig();
+            config.setDriverClassName("org.postgresql.Driver");
             config.setJdbcUrl(correctedDbUrl);
             config.setUsername(username);
             config.setPassword(password);
