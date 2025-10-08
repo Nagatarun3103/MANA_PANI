@@ -1,29 +1,102 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar as CalendarIcon, Edit, Trash2, Timer, X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { ArrowLeft, Calendar as CalendarIcon, Edit, Trash2, Timer, X, CheckCircle2, RotateCcw } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, intervalToDuration } from "date-fns";
-import { cn } from "@/lib/utils";
-import api from "../services/api"; // Import the configured api instance
+import api from "../services/api";
+import ssbPlanData from "../data/ssbPlanData.json";
 
 const isValidDate = (date: any): date is Date => {
   return date instanceof Date && !isNaN(date.getTime());
 };
 
+// SSB Plan Component
+const SsbPlanComponent = () => {
+  const SSB_PLAN_STORAGE_KEY = "ssbPlanCurrentDay";
+  const [currentDay, setCurrentDay] = useState<number>(() => {
+    const storedDay = localStorage.getItem(SSB_PLAN_STORAGE_KEY);
+    return storedDay ? parseInt(storedDay) : 1;
+  });
+
+  const currentDayPlan = ssbPlanData.find((plan) => plan.day === currentDay);
+  const isPlanComplete = currentDay > ssbPlanData.length;
+
+  useEffect(() => {
+    localStorage.setItem(SSB_PLAN_STORAGE_KEY, currentDay.toString());
+  }, [currentDay]);
+
+  const handleMarkDayComplete = () => {
+    if (currentDay <= ssbPlanData.length) {
+      setCurrentDay(currentDay + 1);
+    }
+  };
+
+  const handleResetPlan = () => {
+    if (window.confirm("Are you sure you want to reset your SSB preparation plan?")) {
+      setCurrentDay(1);
+    }
+  };
+
+  if (isPlanComplete) {
+    return (
+      <div className="text-center p-8 bg-black rounded-2xl border border-border/20">
+        <h3 className="text-3xl text-green-500 mb-4">Plan Completed! 🎉</h3>
+        <p className="text-lg">Congratulations on completing your 30-day SSB preparation plan!</p>
+        <Button onClick={handleResetPlan} className="mt-6">
+          <RotateCcw className="w-4 h-4 mr-2" /> Start Again
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-black rounded-2xl p-6 border border-border/20">
+      <div className="text-center mb-4">
+        <h3 className="text-2xl">Day {currentDay} / {ssbPlanData.length}</h3>
+        <p className="text-muted-foreground">Week {currentDayPlan?.week}: {currentDayPlan?.focus}</p>
+      </div>
+      <div className="space-y-6">
+        <div>
+          <h4 className="text-xl font-semibold mb-2">Daily Routine:</h4>
+          <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+            {currentDayPlan?.dailyRoutine.map((item, index) => <li key={index}>{item}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-xl font-semibold mb-2">Tasks:</h4>
+          <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+            {currentDayPlan?.tasks.map((item, index) => <li key={index}>{item}</li>)}
+          </ul>
+        </div>
+        <div className="flex justify-between items-center pt-4">
+          <Button onClick={handleMarkDayComplete} className="btn-hero">
+            <CheckCircle2 className="w-4 h-4 mr-2" /> Mark Day {currentDay} Complete
+          </Button>
+          <Button variant="outline" onClick={handleResetPlan}>
+            <RotateCcw className="w-4 h-4 mr-2" /> Reset Plan
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 const GoalPage = () => {
   const navigate = useNavigate();
   const [goals, setGoals] = useState<any[]>([]);
-  const [form, setForm] = useState({ goalName: "", deadline: null as Date | null, description: "", type: "", status: "To Finish" });
-  const [modalOpen, setModalOpen] = useState(false);
-  const [goalType, setGoalType] = useState<string | null>(null);
-  const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
-  const [globalSelectedGoalId, setGlobalSelectedGoalId] = useState<number | null>(null);
+  const [form, setForm] = useState({ goalName: "", deadline: null as Date | null, description: "", type: "Short goal", status: "To Finish" });
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
+  const [globalSelectedGoalId, setGlobalSelectedGoalId] = useState<string | null>(null);
   const [globalCountdown, setGlobalCountdown] = useState<any>(null);
+  const [filter, setFilter] = useState<string>("All");
 
   useEffect(() => {
     const fetchGoals = async () => {
@@ -38,7 +111,7 @@ const GoalPage = () => {
 
     const storedGlobalGoalId = localStorage.getItem("globalSelectedGoalId");
     if (storedGlobalGoalId) {
-      setGlobalSelectedGoalId(parseInt(storedGlobalGoalId));
+      setGlobalSelectedGoalId(storedGlobalGoalId);
     }
   }, []);
 
@@ -49,7 +122,6 @@ const GoalPage = () => {
     if (globalGoal && globalGoal.deadline) {
       const targetDate = new Date(globalGoal.deadline);
       if (!isValidDate(targetDate)) {
-        console.error("Invalid date for global selected goal:", globalGoal.deadline);
         setGlobalCountdown(null);
         return;
       }
@@ -74,23 +146,29 @@ const GoalPage = () => {
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  
+  const handleTypeChange = (value: string) => {
+    setForm({ ...form, type: value });
+  };
 
-  const handleDateChange = (date: Date | undefined) => {
-    setForm({ ...form, deadline: date || null });
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    setForm({ goalName: "", deadline: date, description: "", type: "Short goal", status: "To Finish" });
+    setEditingGoalId(null);
+    setIsFormOpen(true);
   };
 
   const resetForm = () => {
-    setForm({ goalName: "", deadline: null, description: "", type: "", status: "To Finish" });
-    setGoalType(null);
+    setForm({ goalName: "", deadline: null, description: "", type: "Short goal", status: "To Finish" });
     setEditingGoalId(null);
   };
 
   const handleSubmit = async () => {
-    if (!form.goalName || !form.deadline || !form.description) {
-      alert("Please fill out all fields: Goal, Deadline, and Description.");
+    if (!form.goalName || !form.deadline) {
+      alert("Please fill out all fields: Goal and Deadline.");
       return;
     }
-    const goalData = { ...form, type: goalType, deadline: form.deadline.toISOString() };
+    const goalData = { ...form, deadline: form.deadline.toISOString() };
 
     try {
       if (editingGoalId) {
@@ -100,27 +178,23 @@ const GoalPage = () => {
         const response = await api.post("/api/goals", goalData);
         setGoals([...goals, response.data]);
       }
-      setModalOpen(false);
+      setIsFormOpen(false);
       resetForm();
     } catch (error) {
       console.error("Error saving goal:", error);
-      alert("Failed to save goal. See console for details.");
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await api.delete(`/api/goals/${id}`);
-      const newGoals = goals.filter((goal) => goal.id !== id);
-      setGoals(newGoals);
-      localStorage.setItem("goals", JSON.stringify(newGoals));
+      setGoals(goals.filter((goal) => goal.id !== id));
       if (globalSelectedGoalId === id) {
         setGlobalSelectedGoalId(null);
         localStorage.removeItem("globalSelectedGoalId");
       }
     } catch (error) {
       console.error("Error deleting goal:", error);
-      alert("Failed to delete goal. See console for details.");
     }
   };
 
@@ -133,93 +207,31 @@ const GoalPage = () => {
       type: goalToEdit.type, 
       status: goalToEdit.status 
     });
-    setGoalType(goalToEdit.type);
-    setModalOpen(true);
+    setIsFormOpen(true);
   };
 
-  const handleSetGlobalTimer = (id: number) => {
+  const handleSetGlobalTimer = (id: string) => {
     setGlobalSelectedGoalId(id);
-    localStorage.setItem("globalSelectedGoalId", id.toString());
+    localStorage.setItem("globalSelectedGoalId", id);
   };
 
-  const openModal = (type: string) => {
-    resetForm();
-    setGoalType(type);
-    setModalOpen(true);
-  };
-
-  const goalCards = [
-    { title: "Short goal", type: "form" },
-    { title: "Financial goal", type: "form" },
-    { title: "Important work", type: "form" },
-    { title: "Task complition survey", type: "navigate", path: "/survey" },
-  ];
-
-  const renderForm = () => {
-    let dateConstraint: any = {};
-    if (goalType === "Short goal") {
-      const oneMonthFromNow = new Date();
-      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
-      dateConstraint = { fromDate: oneMonthFromNow };
-    } else if (goalType === "Financial goal") {
-      const oneYearFromNow = new Date();
-      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-      dateConstraint = { fromDate: oneYearFromNow };
-    } else if (goalType === "Important work") {
-      const oneMonthFromNow = new Date();
-      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
-      dateConstraint = { toDate: oneMonthFromNow };
-    }
-
-    return (
-      <div className="space-y-4">
-        <Input name="goalName" placeholder="Goal" value={form.goalName} onChange={handleFormChange} />
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !form.deadline && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {form.deadline ? format(form.deadline, "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={form.deadline}
-              onSelect={handleDateChange}
-              initialFocus
-              {...dateConstraint}
-            />
-          </PopoverContent>
-        </Popover>
-        <Textarea name="description" placeholder="Description" value={form.description} onChange={handleFormChange} />
-        <Button onClick={handleSubmit}>{editingGoalId ? "Update Goal" : "Add Goal"}</Button>
-      </div>
-    );
-  };
+  const filteredGoals = goals.filter(goal => {
+    if (filter === "All") return true;
+    return goal.type === filter;
+  });
 
   const globalGoal = goals.find(g => g.id === globalSelectedGoalId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background p-6 md:p-12">
       <div className="max-w-7xl mx-auto">
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mb-8 flex items-center gap-2 text-foreground/70 hover:text-primary transition-colors duration-300"
-        >
+        <button onClick={() => navigate("/dashboard")} className="mb-8 flex items-center gap-2 text-foreground/70 hover:text-primary transition-colors duration-300">
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
         </button>
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-wide inline-block">
-            GOAL DOMAIN
-          </h1>
+          <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-wide inline-block">GOAL DOMAIN</h1>
           <div className="h-1 w-32 bg-gradient-to-r from-primary to-primary-glow mx-auto mt-4 rounded-full" />
         </div>
 
@@ -228,95 +240,74 @@ const GoalPage = () => {
             <Timer className="h-5 w-5 text-primary" />
             <div>
               <p className="text-sm font-bold">{globalGoal.goalName}</p>
-              <p className="text-xs">
-                {globalCountdown.days}d {globalCountdown.hours}h {globalCountdown.minutes}m {globalCountdown.seconds}s
-              </p>
+              <p className="text-xs">{globalCountdown.days}d {globalCountdown.hours}h {globalCountdown.minutes}m {globalCountdown.seconds}s</p>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => {
-              setGlobalSelectedGoalId(null);
-              localStorage.removeItem("globalSelectedGoalId");
-            }} className="text-white hover:bg-white/20">
+            <Button variant="ghost" size="sm" onClick={() => { setGlobalSelectedGoalId(null); localStorage.removeItem("globalSelectedGoalId"); }} className="text-white hover:bg-white/20">
               <X className="h-4 w-4" />
             </Button>
           </div>
         )}
 
-        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {goalCards.map((card, index) => (
-              card.type === "form" ? (
-                <DialogTrigger asChild key={index}>
-                  <button
-                    onClick={() => openModal(card.title)}
-                    className="group relative bg-black rounded-2xl p-8 min-h-[160px] flex items-center justify-center
-                             border border-border/20 overflow-hidden
-                             transition-all duration-300 ease-out
-                             hover:scale-105 hover:shadow-[0_0_30px_rgba(255,107,53,0.4)]
-                             hover:border-primary/50"
-                  >
-                    <h3 className="text-xl font-bold text-destructive text-center transition-colors duration-300
-                                 group-hover:text-primary z-10 relative">
-                      {card.title}
-                    </h3>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/0 opacity-0
-                                  group-hover:opacity-100 transition-opacity duration-300" />
-                  </button>
-                </DialogTrigger>
-              ) : (
-                <button
-                  key={index}
-                  onClick={() => navigate(card.path!)}
-                  className="group relative bg-black rounded-2xl p-8 min-h-[160px] flex items-center justify-center
-                           border border-border/20 overflow-hidden
-                           transition-all duration-300 ease-out
-                           hover:scale-105 hover:shadow-[0_0_30px_rgba(255,107,53,0.4)]
-                           hover:border-primary/50"
-                >
-                  <h3 className="text-xl font-bold text-destructive text-center transition-colors duration-300
-                               group-hover:text-primary z-10 relative">
-                    {card.title}
-                  </h3>
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/0 opacity-0
-                                group-hover:opacity-100 transition-opacity duration-300" />
-                </button>
-              )
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-1">
+            <Calendar mode="single" onSelect={handleDateSelect} className="rounded-md border bg-black" />
           </div>
+          <div className="md:col-span-2">
+            <div className="flex space-x-2 mb-4">
+              {["All", "Short goal", "Financial goal", "Important work"].map(f => (
+                <Button key={f} variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>{f}</Button>
+              ))}
+            </div>
+            
+            {filter === "Important work" ? (
+              <SsbPlanComponent />
+            ) : (
+              <div className="space-y-4">
+                {filteredGoals.map(goal => (
+                  <div key={goal.id} className="bg-black rounded-2xl p-4 border border-border/20 flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-bold text-primary">{goal.goalName}</h3>
+                      <p className="text-sm text-muted-foreground">{goal.type}</p>
+                      <p className="text-xs text-muted-foreground">{goal.deadline ? format(new Date(goal.deadline), "PPP") : "N/A"}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(goal)}><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(goal.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleSetGlobalTimer(goal.id)}><Timer className="h-4 w-4" /></Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
             <DialogHeader>
-              <DialogTitle>{editingGoalId ? `Edit ${goalType}` : `Add ${goalType}`}</DialogTitle>
+              <DialogTitle>{editingGoalId ? "Edit Goal" : "Add New Goal"}</DialogTitle>
             </DialogHeader>
-            {renderForm()}
+            <div className="space-y-4">
+              <Input name="goalName" placeholder="Goal Name" value={form.goalName} onChange={handleFormChange} />
+              <Select onValueChange={handleTypeChange} value={form.type}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select goal type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Short goal">Short goal</SelectItem>
+                  <SelectItem value="Financial goal">Financial goal</SelectItem>
+                  <SelectItem value="Important work">Important work</SelectItem>
+                </SelectContent>
+              </Select>
+              <Textarea name="description" placeholder="Description" value={form.description} onChange={handleFormChange} />
+              <p className="text-sm text-muted-foreground">Date: {form.deadline ? format(form.deadline, "PPP") : "N/A"}</p>
+              <Button onClick={handleSubmit}>{editingGoalId ? "Update Goal" : "Add Goal"}</Button>
+            </div>
             <DialogClose asChild>
               <Button variant="secondary" onClick={resetForm}>Cancel</Button>
             </DialogClose>
           </DialogContent>
         </Dialog>
-
-        <div className="mt-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-foreground">Saved Goals</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {goals.map(goal => (
-              <div key={goal.id} className="bg-black rounded-2xl p-6 border border-border/20">
-                <h3 className="text-xl font-bold text-primary mb-2">{goal.goalName}</h3>
-                <p className="text-muted-foreground mb-2">{goal.type}</p>
-                <p className="text-muted-foreground mb-2">{goal.deadline ? format(new Date(goal.deadline), "PPP") : "N/A"}</p>
-                <p>{goal.description}</p>
-                <div className="flex justify-end space-x-2 mt-4">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(goal)}>
-                    <Edit className="h-4 w-4 mr-2" /> Edit
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(goal.id)}>
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={() => handleSetGlobalTimer(goal.id)}>
-                    <Timer className="h-4 w-4 mr-2" /> Set Timer
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

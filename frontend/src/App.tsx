@@ -10,7 +10,8 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import TaskSurveyPage from './pages/TaskSurveyPage';
 import SuggestionsPage from './pages/SuggestionsPage';
-import AnimatedBackground from './components/AnimatedBackground';
+import SsbPlanPage from './pages/SsbPlanPage';
+import UniversalAnimatedBackground from './components/UniversalAnimatedBackground';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -18,9 +19,13 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
     return (
         <AuthProvider>
-            <div className="relative min-h-screen">
-                <AnimatedBackground />
-                <div className="relative z-10">
+            <div className="grid min-h-screen bg-background">
+                {/* The background and content are in the same grid cell to overlap */}
+                <div className="col-start-1 row-start-1">
+                    <UniversalAnimatedBackground />
+                </div>
+
+                <div className="col-start-1 row-start-1 grid backdrop-blur-xl bg-background/80">
                     <Router>
                         <Routes>
                             <Route path="/login" element={<LoginPage />} />
@@ -34,6 +39,7 @@ function App() {
                                 <Route path="/health" element={<HealthPage />} />
                                 <Route path="/suggestions" element={<SuggestionsPage />} />
                                 <Route path="/survey" element={<TaskSurveyPage />} />
+                                <Route path="/ssb-plan" element={<SsbPlanPage />} />
 
                             </Route>
                             <Route path="*" element={<LoginPage />} />

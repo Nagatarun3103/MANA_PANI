@@ -32,3 +32,17 @@ lerna-debug.log*
 # Other
 .DS_Store
 *.local
+
+# Local configuration
+backend/src/main/resources/application-local.properties
+
+# Local media files
+/DASHBOARD.mp4
+/Dashboardedit.jpg
+/Test-vite.png
+/lOGIN_PAGE.mp4
+/login_page_edited.jpg
+/logo.jpg
+/result1_dashboard.png
+/result_dashboard.png
+/test-vite1.png

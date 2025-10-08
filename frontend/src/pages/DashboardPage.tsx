@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Target, Heart, MessageSquare } from "lucide-react";
 import { useContext } from 'react';
+import { motion } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
+import './DashboardPage.css'; // Import the new CSS
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -14,42 +15,58 @@ const DashboardPage = () => {
   };
 
   const domains = [
-    { title: "Goal", icon: Target, path: "/goals" },
-    { title: "Health", icon: Heart, path: "/health" },
-    { title: "Suggestions", icon: MessageSquare, path: "/suggestions" },
+    { title: "Goal", path: "/goals" },
+    { title: "Health", path: "/health" },
+    { title: "Suggestions", path: "/suggestions" },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.3, delayChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 100 },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background flex items-center justify-center p-6">
-      <div className="w-full max-w-4xl">
-        <div className="flex justify-between items-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-            Dashboard
-          </h1>
+    <div className="dashboard-container">
+      <div className="dashboard-background">
+        <div className="light-rays"></div>
+        <div className="particles"></div>
+      </div>
+
+      <div className="dashboard-content">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">MANA_PANI</h1>
           <Button onClick={handleLogout} variant="destructive">Logout</Button>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <motion.div
+          className="domain-grid"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {domains.map((domain) => (
-            <button
+            <motion.button
               key={domain.title}
               onClick={() => navigate(domain.path)}
-              className="group relative bg-black rounded-3xl p-12 h-64 flex flex-col items-center justify-center gap-6 
-                       border border-border/20 overflow-hidden
-                       transition-all duration-300 ease-out
-                       hover:scale-105 hover:shadow-[0_0_40px_rgba(255,107,53,0.4)]
-                       hover:border-primary/50"
+              className="futuristic-btn"
+              variants={itemVariants}
             >
-              <domain.icon className="w-16 h-16 text-destructive transition-all duration-300 group-hover:text-primary group-hover:scale-110" />
-              <h2 className="text-3xl font-bold text-destructive transition-colors duration-300 group-hover:text-primary">
-                {domain.title}
-              </h2>
-              
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/0 opacity-0 
-                            group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
+              {domain.title}
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
