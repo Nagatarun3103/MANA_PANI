@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, Transition } from "framer-motion";
 import { useMemo } from "react";
 
 // Define the color palettes to meet multi-generational appeal
@@ -8,8 +8,17 @@ const palettes = {
   calm: ["#A0C4FF", "#BDB2FF", "#CAFFBF"],
 };
 
+interface BlobProps {
+  x: string[];
+  y: string[];
+  rotate: number[];
+  scale: number[];
+  color: string;
+  transition: Transition;
+}
+
 // A single animated "blob"
-const Blob = ({ x, y, rotate, scale, color, transition }) => (
+const Blob = ({ x, y, rotate, scale, color, transition }: BlobProps) => (
   <motion.div
     className="absolute rounded-full"
     style={{
@@ -47,7 +56,7 @@ const UniversalAnimatedBackground = () => {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {blobs.map((blob) => (
+      {blobs.map((blob: any) => (
         <Blob key={blob.id} {...blob} />
       ))}
     </div>

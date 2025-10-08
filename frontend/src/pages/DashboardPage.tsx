@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import './DashboardPage.css'; // Import the new CSS
@@ -20,7 +20,7 @@ const DashboardPage = () => {
     { title: "Suggestions", path: "/suggestions" },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -28,7 +28,7 @@ const DashboardPage = () => {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,

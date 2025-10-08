@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar as CalendarIcon, Edit, Trash2, Timer, X, CheckCircle2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Timer, X, CheckCircle2, RotateCcw } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
