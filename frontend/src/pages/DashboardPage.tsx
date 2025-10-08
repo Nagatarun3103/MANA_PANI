@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
-import { motion, Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import './DashboardPage.css'; // Import the new CSS

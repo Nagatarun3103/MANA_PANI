@@ -1,4 +1,4 @@
-import { motion, Transition } from "framer-motion";
+import { motion, type Transition } from "framer-motion";
 import { useMemo } from "react";
 
 // Define the color palettes to meet multi-generational appeal
@@ -22,8 +22,6 @@ const Blob = ({ x, y, rotate, scale, color, transition }: BlobProps) => (
   <motion.div
     className="absolute rounded-full"
     style={{
-      top: y,
-      left: x,
       backgroundColor: color,
       width: "clamp(200px, 30vw, 400px)",
       height: "clamp(200px, 30vw, 400px)",
