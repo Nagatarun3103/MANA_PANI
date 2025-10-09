@@ -214,12 +214,64 @@ const GoalPage = () => {
     setIsFormOpen(true);
   };
 
-  const handleSetGlobalTimer = (id: string) => {
+  const handleSetGlobalTimer = async (id: string) => {
     const goalToSet = goals.find(g => g.id === id);
     if (goalToSet) {
+      // This part is for the in-app timer, which is fine to keep.
       localStorage.setItem('globalGoal', JSON.stringify(goalToSet));
       setGlobalGoal(goalToSet);
-      window.open('/timer.html', 'Goal Timer', 'width=400,height=200,scrollbars=no,resizable=yes');
+
+      // New notification logic
+      if ('Notification' in window && 'serviceWorker' in navigator) {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const targetDate = new Date(goalToSet.deadline);
+          const now = new Date();
+          const delay = targetDate.getTime() - now.getTime();
+
+          if (delay > 0) {
+            navigator.serviceWorker.ready.then(registration => {
+              // Main notification for the deadline
+              registration.active?.postMessage({
+                type: 'SCHEDULE_NOTIFICATION',
+                payload: {
+                  title: `Goal Deadline: ${goalToSet.goalName}`,
+                  options: {
+                    body: `Your deadline for "${goalToSet.goalName}" has been reached!`,
+                    icon: '/android/android-launchericon-192-192.png',
+                    badge: '/android/android-launchericon-96-96.png',
+                    vibrate: [200, 100, 200]
+                  },
+                  delay: delay
+                }
+              });
+
+              // 10-minute reminder
+              const tenMinutes = 10 * 60 * 1000;
+              if (delay > tenMinutes) {
+                registration.active?.postMessage({
+                  type: 'SCHEDULE_NOTIFICATION',
+                  payload: {
+                    title: `Goal Reminder: ${goalToSet.goalName}`,
+                    options: {
+                      body: `Your goal "${goalToSet.goalName}" is due in 10 minutes!`,
+                      icon: '/android/android-launchericon-192-192.png',
+                      badge: '/android/android-launchericon-96-96.png',
+                      vibrate: [200, 100, 200]
+                    },
+                    delay: delay - tenMinutes
+                  }
+                });
+              }
+              alert('Timer set! You will be notified 10 minutes before and when the deadline is reached.');
+            });
+          }
+        } else {
+          alert('Notification permission denied. You will not receive timer notifications.');
+        }
+      } else {
+        alert('Notifications are not supported in this browser.');
+      }
     }
   };
 
