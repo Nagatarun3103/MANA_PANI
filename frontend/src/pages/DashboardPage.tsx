@@ -2,12 +2,14 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
-import { Button } from '@/components/ui/button';
+import { usePWAInstall } from '../hooks/usePWAInstall';
+import { Button } => '@/components/ui/button';
 import './DashboardPage.css'; // Import the new CSS
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
+  const { canInstall, promptInstall } = usePWAInstall();
 
   const handleLogout = () => {
     logout();
@@ -47,7 +49,12 @@ const DashboardPage = () => {
       <div className="dashboard-content">
         <div className="dashboard-header">
           <h1 className="dashboard-title">MANA_PANI</h1>
-          <Button onClick={handleLogout} variant="destructive">Logout</Button>
+          <div className="flex items-center gap-2">
+            {canInstall && (
+              <Button onClick={promptInstall}>Install App</Button>
+            )}
+            <Button onClick={handleLogout} variant="destructive">Logout</Button>
+          </div>
         </div>
 
         <motion.div
