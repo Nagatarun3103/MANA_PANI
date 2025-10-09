@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Button } => '@/components/ui/button';
