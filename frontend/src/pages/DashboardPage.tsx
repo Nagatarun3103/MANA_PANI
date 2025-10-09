@@ -1,11 +1,11 @@
+import './DashboardPage.css'; // Import the new CSS
 import { useNavigate } from "react-router-dom";
 import { useContext } from 'react';
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { Button } => '@/components/ui/button';
-import './DashboardPage.css'; // Import the new CSS
+import { Button } from '@/components/ui/button';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
