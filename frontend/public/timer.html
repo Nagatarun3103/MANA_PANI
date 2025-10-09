@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goal Timer</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        #goalName {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        #countdown {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="goalName"></h1>
+    <div id="countdown"></div>
+
+    <script>
+        let interval;
+
+        function updateCountdown() {
+            const goal = JSON.parse(localStorage.getItem('globalGoal'));
+            if (goal && goal.deadline) {
+                document.getElementById('goalName').textContent = goal.goalName;
+                const targetDate = new Date(goal.deadline);
+                const now = new Date();
+
+                if (now >= targetDate) {
+                    document.getElementById('countdown').textContent = "Time's up!";
+                    clearInterval(interval);
+                    return;
+                }
+
+                const totalSeconds = (targetDate - now) / 1000;
+                const days = Math.floor(totalSeconds / 3600 / 24);
+                const hours = Math.floor(totalSeconds / 3600) % 24;
+                const minutes = Math.floor(totalSeconds / 60) % 60;
+                const seconds = Math.floor(totalSeconds) % 60;
+
+                document.getElementById('countdown').textContent = 
+                    `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                document.getElementById('goalName').textContent = 'No goal set';
+                document.getElementById('countdown').textContent = '';
+            }
+        }
+
+        function startCountdown() {
+            if (interval) {
+                clearInterval(interval);
+            }
+            updateCountdown();
+            interval = setInterval(updateCountdown, 1000);
+        }
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'globalGoal') {
+                startCountdown();
+            }
+        });
+
+        // Initial call
+        startCountdown();
+    </script>
+</body>
+</html>

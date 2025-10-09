@@ -94,7 +94,7 @@ const GoalPage = () => {
   const [form, setForm] = useState({ goalName: "", deadline: null as Date | null, description: "", type: "Short goal", status: "To Finish" });
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
-  const [globalSelectedGoalId, setGlobalSelectedGoalId] = useState<string | null>(null);
+  const [globalGoal, setGlobalGoal] = useState<any | null>(null);
   const [globalCountdown, setGlobalCountdown] = useState<any>(null);
   const [filter, setFilter] = useState<string>("All");
 
@@ -109,15 +109,19 @@ const GoalPage = () => {
     };
     fetchGoals();
 
-    const storedGlobalGoalId = localStorage.getItem("globalSelectedGoalId");
-    if (storedGlobalGoalId) {
-      setGlobalSelectedGoalId(storedGlobalGoalId);
+    const storedGlobalGoal = localStorage.getItem("globalGoal");
+    if (storedGlobalGoal) {
+      try {
+        setGlobalGoal(JSON.parse(storedGlobalGoal));
+      } catch (e) {
+        console.error("Error parsing global goal from localStorage", e);
+        localStorage.removeItem("globalGoal");
+      }
     }
   }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    const globalGoal = goals.find(g => g.id === globalSelectedGoalId);
 
     if (globalGoal && globalGoal.deadline) {
       const targetDate = new Date(globalGoal.deadline);
@@ -141,7 +145,7 @@ const GoalPage = () => {
     }
 
     return () => clearInterval(timer);
-  }, [globalSelectedGoalId, goals]);
+  }, [globalGoal]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -189,9 +193,9 @@ const GoalPage = () => {
     try {
       await api.delete(`/api/goals/${id}`);
       setGoals(goals.filter((goal) => goal.id !== id));
-      if (globalSelectedGoalId === id) {
-        setGlobalSelectedGoalId(null);
-        localStorage.removeItem("globalSelectedGoalId");
+      if (globalGoal?.id === id) {
+        setGlobalGoal(null);
+        localStorage.removeItem("globalGoal");
       }
     } catch (error) {
       console.error("Error deleting goal:", error);
@@ -211,16 +215,18 @@ const GoalPage = () => {
   };
 
   const handleSetGlobalTimer = (id: string) => {
-    setGlobalSelectedGoalId(id);
-    localStorage.setItem("globalSelectedGoalId", id);
+    const goalToSet = goals.find(g => g.id === id);
+    if (goalToSet) {
+      localStorage.setItem('globalGoal', JSON.stringify(goalToSet));
+      setGlobalGoal(goalToSet);
+      window.open('/timer.html', 'Goal Timer', 'width=400,height=200,scrollbars=no,resizable=yes');
+    }
   };
 
   const filteredGoals = goals.filter(goal => {
     if (filter === "All") return true;
     return goal.type === filter;
   });
-
-  const globalGoal = goals.find(g => g.id === globalSelectedGoalId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background p-6 md:p-12">
@@ -235,14 +241,14 @@ const GoalPage = () => {
           <div className="h-1 w-32 bg-gradient-to-r from-primary to-primary-glow mx-auto mt-4 rounded-full" />
         </div>
 
-        {globalSelectedGoalId && globalCountdown && globalGoal && isValidDate(new Date(globalGoal.deadline)) && (
+        {globalGoal && globalCountdown && isValidDate(new Date(globalGoal.deadline)) && (
           <div className="fixed top-4 right-4 bg-black/70 backdrop-blur-sm text-white p-3 rounded-lg shadow-lg z-50 flex items-center space-x-2">
             <Timer className="h-5 w-5 text-primary" />
             <div>
               <p className="text-sm font-bold">{globalGoal.goalName}</p>
               <p className="text-xs">{globalCountdown.days}d {globalCountdown.hours}h {globalCountdown.minutes}m {globalCountdown.seconds}s</p>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => { setGlobalSelectedGoalId(null); localStorage.removeItem("globalSelectedGoalId"); }} className="text-white hover:bg-white/20">
+            <Button variant="ghost" size="sm" onClick={() => { setGlobalGoal(null); localStorage.removeItem("globalGoal"); }} className="text-white hover:bg-white/20">
               <X className="h-4 w-4" />
             </Button>
           </div>
