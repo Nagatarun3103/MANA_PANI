@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
+import api from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,7 @@ const ForgotPasswordPage = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <div className="min-h-screen flex items-center justify-center bg-background p-6">
             <Card className="w-full max-w-md mx-auto glass-card">
                 <CardHeader className="text-center space-y-2">
                     <CardTitle className="text-3xl font-bold text-foreground">Forgot Password</CardTitle>
@@ -49,12 +49,12 @@ const ForgotPasswordPage = () => {
                         {message && <p className="text-sm font-medium text-green-500">{message}</p>}
                         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-                        <Button type="submit" className="w-full btn-hero">
+                        <Button type="submit" className="w-full">
                             Send Reset Link
                         </Button>
                     </form>
                     <div className="mt-4 text-center text-sm">
-                        <Link to="/login" className="underline text-primary">
+                        <Link to="/" className="underline text-primary">
                             Back to Login
                         </Link>
                     </div>

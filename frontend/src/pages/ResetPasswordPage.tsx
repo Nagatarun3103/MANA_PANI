@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import api from '../services/api';
+import api from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,7 +37,7 @@ const ResetPasswordPage = () => {
             const response = await api.post('/auth/reset-password', { token, newPassword });
             setMessage(response.data.message);
             setTimeout(() => {
-                navigate('/login');
+                navigate('/');
             }, 3000); // Redirect to login after 3 seconds
         } catch (err) {
             setError('Failed to reset password. The token might be invalid or expired.');
@@ -45,7 +45,7 @@ const ResetPasswordPage = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <div className="min-h-screen flex items-center justify-center bg-background p-6">
             <Card className="w-full max-w-md mx-auto glass-card">
                 <CardHeader className="text-center space-y-2">
                     <CardTitle className="text-3xl font-bold text-foreground">Reset Password</CardTitle>
@@ -71,7 +71,7 @@ const ResetPasswordPage = () => {
                             {message && <p className="text-sm font-medium text-green-500">{message}</p>}
                             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-                            <Button type="submit" className="w-full btn-hero">
+                            <Button type="submit" className="w-full">
                                 Reset Password
                             </Button>
                         </form>
@@ -79,7 +79,7 @@ const ResetPasswordPage = () => {
                         <div className="text-center">
                             <p className="text-sm font-medium text-destructive">{error || "No reset token provided."}</p>
                             <div className="mt-4 text-center text-sm">
-                                <Link to="/login" className="underline text-primary">
+                                <Link to="/" className="underline text-primary">
                                     Back to Login
                                 </Link>
                             </div>

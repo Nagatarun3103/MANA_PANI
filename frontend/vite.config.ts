@@ -1,12 +1,18 @@
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  server: {
+    host: "::",
+    port: 5173,
+  },
   plugins: [
     react(),
+    mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
@@ -14,10 +20,10 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       manifest: {
-        name: 'MANA_PANI',
-        short_name: 'MANA_PANI',
-        description: 'A personal development and goal tracking application.',
-        theme_color: '#000000',
+        name: 'MANA PANI - Hydrate Your Ambition',
+        short_name: 'MANA PANI',
+        description: 'Track your goals and health with MANA PANI - a modern platform for personal growth and wellness',
+        theme_color: '#0d0c12',
         icons: [
           {
             src: 'android/android-launchericon-192-192.png',
@@ -38,10 +44,10 @@ export default defineConfig({
         ]
       }
     })
-  ],
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-});
+}));
