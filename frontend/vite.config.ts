@@ -15,10 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      strategies: 'injectManifest',
-      srcDir: 'src',
-      filename: 'sw.ts',
+      includeAssets: ['favicon.ico', 'robots.txt'],
       manifest: {
         name: 'MANA PANI - Hydrate Your Ambition',
         short_name: 'MANA PANI',
@@ -42,6 +39,12 @@ export default defineConfig(({ mode }) => ({
             purpose: 'any maskable'
           }
         ]
+      },
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg}']
       }
     })
   ].filter(Boolean),
