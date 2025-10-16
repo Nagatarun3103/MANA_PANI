@@ -18,16 +18,16 @@ const ForgotPasswordPage = () => {
         try {
             const response = await api.post('/auth/forgot-password', { email });
             setMessage(response.data.message);
-        } catch (err) {
+        } catch (err) { 
             setError('Failed to send reset link. Please check the email address.');
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-6">
-            <Card className="w-full max-w-md mx-auto glass-card">
+        <div className="min-h-screen flex items-center justify-center bg-muted p-6">
+            <Card className="w-full max-w-md mx-auto shadow-md bg-background">
                 <CardHeader className="text-center space-y-2">
-                    <CardTitle className="text-3xl font-bold text-foreground">Forgot Password</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-foreground">Forgot Password</CardTitle>
                     <CardDescription>
                         Enter your email and we'll send you a link to reset your password.
                     </CardDescription>
@@ -43,13 +43,14 @@ const ForgotPasswordPage = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                                className="h-11"
                             />
                         </div>
                         
                         {message && <p className="text-sm font-medium text-green-500">{message}</p>}
                         {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-full h-11">
                             Send Reset Link
                         </Button>
                     </form>

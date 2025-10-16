@@ -45,10 +45,10 @@ const ResetPasswordPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-6">
-            <Card className="w-full max-w-md mx-auto glass-card">
+        <div className="min-h-screen flex items-center justify-center bg-muted p-6">
+            <Card className="w-full max-w-md mx-auto shadow-md bg-background">
                 <CardHeader className="text-center space-y-2">
-                    <CardTitle className="text-3xl font-bold text-foreground">Reset Password</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-foreground">Reset Password</CardTitle>
                     <CardDescription>
                         Enter your new password below.
                     </CardDescription>
@@ -65,13 +65,14 @@ const ResetPasswordPage = () => {
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     required
+                                    className="h-11"
                                 />
                             </div>
                             
                             {message && <p className="text-sm font-medium text-green-500">{message}</p>}
                             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full h-11">
                                 Reset Password
                             </Button>
                         </form>

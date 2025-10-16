@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import api from "@/services/api";
+import { TrendingUp, Mail, Lock, User } from "lucide-react";
+import signupHero from "@/assets/signup-minimal.jpg";
 
 const signupSchema = z.object({
   username: z
@@ -32,6 +34,7 @@ const Signup = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,7 +43,11 @@ const Signup = () => {
     e.preventDefault();
     setErrors({});
 
-    // Validate form data
+    if (password !== confirmPassword) {
+      setErrors({ confirmPassword: "Passwords do not match" });
+      return;
+    }
+
     const result = signupSchema.safeParse({ username, email, password });
 
     if (!result.success) {
@@ -71,108 +78,136 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-7xl grid lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden shadow-elevated">
-        {/* Left side - Image and Text */}
-        <div
-          className="relative hidden lg:block min-h-[600px] bg-cover bg-center"
-          style={{ backgroundImage: `url(https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2070&auto=format&fit=crop)` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-blue-900/60 flex flex-col items-center justify-center p-12 text-center">
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-4">
-              JOIN THE CREW
-            </h2>
-            <p className="text-xl md:text-2xl text-white/90 font-light">
-              Start your journey with us
+    <div className="min-h-screen flex bg-muted">
+      {/* Left Side - Hero Image */}
+      <div className="hidden lg:flex flex-1 relative overflow-hidden">
+        <img
+          src={signupHero}
+          alt="Minimalist workspace"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/40 to-transparent" />
+        <div className="absolute bottom-16 left-16 right-16 text-foreground space-y-3">
+          <h2 className="text-4xl font-bold">
+            Start your journey today
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-md">
+            Join others achieving their goals through simple, focused tracking
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-md space-y-8 animate-fade-in">
+          {/* Logo & Title */}
+          <div className="text-center space-y-2">
+            <div className="flex items-center gap-2 justify-center mb-6">
+              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center animate-scale-in">
+                <TrendingUp className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <h1 className="text-3xl font-bold text-foreground">
+                MANA PANI
+              </h1>
+            </div>
+            <p className="text-base text-muted-foreground">
+              Create your account
             </p>
           </div>
-        </div>
 
-        {/* Right side - Signup Form */}
-        <div className="glass-card p-8 md:p-12 lg:rounded-l-none animate-slide-up">
-          <h2 className="text-3xl font-bold mb-8">Create Account</h2>
+          {/* Signup Form */}
+          <div className="card-minimal p-8 shadow-md bg-background">
+            <h2 className="text-xl font-semibold mb-6 text-foreground">
+              Get started
+            </h2>
+            
+            <form onSubmit={handleSignup} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm font-medium flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className={`h-11 ${errors.username ? 'border-destructive' : ''}`}
+                  placeholder="Choose a username"
+                />
+                {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
+              </div>
 
-          <form onSubmit={handleSignup} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-base">
-                Username
-              </Label>
-              <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className={`h-12 bg-input border-border rounded-xl text-base ${
-                  errors.username ? "border-destructive" : ""
-                }`}
-                placeholder="Choose a username"
-              />
-              {errors.username && (
-                <p className="text-sm text-destructive">{errors.username}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`h-11 ${errors.email ? 'border-destructive' : ''}`}
+                  placeholder="your.email@example.com"
+                />
+                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-base">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`h-12 bg-input border-border rounded-xl text-base ${
-                  errors.email ? "border-destructive" : ""
-                }`}
-                placeholder="Enter your email"
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`h-11 ${errors.password ? 'border-destructive' : ''}`}
+                  placeholder="Create a password"
+                />
+                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-base">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`h-12 bg-input border-border rounded-xl text-base ${
-                  errors.password ? "border-destructive" : ""
-                }`}
-                placeholder="Create a strong password"
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  Confirm Password
+                </Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`h-11 ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                  placeholder="Confirm your password"
+                />
+                {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
+              </div>
 
-            {errors.api && (
-                <p className="text-sm text-destructive">{errors.api}</p>
-            )}
+              {errors.api && <p className="text-sm text-destructive text-center">{errors.api}</p>}
 
-            <Button
-              type="submit"
-              className="w-full h-12 text-base font-semibold gradient-primary hover:opacity-90 transition-opacity rounded-xl"
-            >
-              Sign Up
-            </Button>
+              <Button
+                type="submit"
+                className="w-full h-11 text-sm font-medium"
+              >
+                Create account
+              </Button>
+            </form>
 
-            <div className="text-center pt-4">
-              <span className="text-muted-foreground">
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <Link
                   to="/"
-                  className="text-accent hover:text-accent/80 transition-colors font-semibold"
+                  className="font-medium text-primary hover:underline"
                 >
-                  Login
+                  Sign in
                 </Link>
-              </span>
+              </p>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
