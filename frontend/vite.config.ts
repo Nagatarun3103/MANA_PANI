@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => ({
         short_name: 'MANA PANI',
         description: 'Track your goals and health with MANA PANI - a modern platform for personal growth and wellness',
         theme_color: '#0d0c12',
+        display: 'standalone',
+        start_url: '/',
         icons: [
           {
             src: 'android/android-launchericon-192-192.png',
