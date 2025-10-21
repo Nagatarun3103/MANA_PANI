@@ -65,5 +65,5 @@ You can use the pre-configured accounts to log in:
     -   **Password:** `password`
 
 -   **Admin Role:**
-    -   **Username:** `admin`
-    -   **Password:** `password`
+    -   **Username:** `GRS`
+    -   **Password:** `GRS_Mahi`

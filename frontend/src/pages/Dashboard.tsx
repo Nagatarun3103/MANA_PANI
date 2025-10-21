@@ -1,15 +1,35 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Target, Heart, Sparkles, LogOut, TrendingUp, Activity } from "lucide-react";
+import api from "@/services/api";
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  const stats = [
-    { label: "Active Goals", value: "12", change: "+3", icon: Target },
-    { label: "Health Score", value: "87%", change: "+5%", icon: Heart },
-    { label: "Streak Days", value: "24", change: "+1", icon: TrendingUp },
-  ];
+  const [stats, setStats] = useState([
+    { label: "Active Goals", value: "0", change: "+0", icon: Target },
+    { label: "Health Score", value: "0%", change: "+0%", icon: Heart },
+    { label: "Streak Days", value: "0", change: "+0", icon: TrendingUp },
+  ]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/api/dashboard/stats');
+        const data = response.data;
+        setStats([
+          { label: "Active Goals", value: data.activeGoals.toString(), change: `+${data.activeGoalsChange}`, icon: Target },
+          { label: "Health Score", value: `${data.healthScore}%`, change: `${data.healthScoreChange > 0 ? '+' : ''}${data.healthScoreChange}%`, icon: Heart },
+          { label: "Streak Days", value: data.streakDays.toString(), change: `+${data.streakDaysChange}`, icon: TrendingUp },
+        ]);
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   const cards = [
     {
@@ -65,6 +85,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
+            const isNegative = stat.change.startsWith('-');
             return (
               <div
                 key={index}
@@ -81,7 +102,7 @@ const Dashboard = () => {
                   <span className="text-4xl font-bold text-foreground">
                     {stat.value}
                   </span>
-                  <span className="text-base font-medium text-green-600 mb-2">{stat.change}</span>
+                  <span className={`text-base font-medium ${isNegative ? 'text-red-500' : 'text-green-600'} mb-2`}>{stat.change}</span>
                 </div>
               </div>
             );
