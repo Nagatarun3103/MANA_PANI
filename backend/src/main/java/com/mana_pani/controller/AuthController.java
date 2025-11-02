@@ -120,7 +120,7 @@ public class AuthController {
 
         user.setRoles(roles);
         userRepository.save(user);
-        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
+        // emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
@@ -142,7 +142,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), token);
+        // emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), token);
 
         return ResponseEntity.ok(new MessageResponse("A password reset link has been sent to your email address."));
     }
