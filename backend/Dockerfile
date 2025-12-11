@@ -6,7 +6,7 @@ RUN ls -la
 RUN mvn clean install -DskipTests
 
 # Stage 2: Create the final, lightweight image
-FROM openjdk:17-slim
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/mana_pani-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
