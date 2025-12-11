@@ -28,25 +28,23 @@ public class AdminUserInitializer {
 
     @EventListener
     public void onApplicationReady(ApplicationReadyEvent event) {
-        if (!userRepository.existsByUsername("GRS")) {
-            // Create admin role if it doesn't exist
-            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                    .orElseGet(() -> {
-                        Role newAdminRole = new Role(ERole.ROLE_ADMIN);
-                        return roleRepository.save(newAdminRole);
-                    });
+        // Create admin role if it doesn't exist
+        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                .orElseGet(() -> {
+                    Role newAdminRole = new Role(ERole.ROLE_ADMIN);
+                    return roleRepository.save(newAdminRole);
+                });
 
-            // Create GRS user
-            User adminUser = new User();
-            adminUser.setUsername("GRS");
-            adminUser.setPassword(passwordEncoder.encode("GRS-Mahi"));
-            adminUser.setEmail("grs@example.com"); // Dummy email
+        // Find or create GRS user and set/reset their details
+        User adminUser = userRepository.findByUsername("GRS").orElse(new User());
+        adminUser.setUsername("GRS");
+        adminUser.setPassword(passwordEncoder.encode("GRS-Mahi"));
+        adminUser.setEmail("grs@example.com"); // Dummy email
 
-            Set<Role> roles = new HashSet<>();
-            roles.add(adminRole);
-            adminUser.setRoles(roles);
+        Set<Role> roles = new HashSet<>();
+        roles.add(adminRole);
+        adminUser.setRoles(roles);
 
-            userRepository.save(adminUser);
-        }
+        userRepository.save(adminUser);
     }
 }

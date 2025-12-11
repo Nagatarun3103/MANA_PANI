@@ -69,6 +69,7 @@ const Signup = () => {
         });
         navigate('/');
     } catch (err: any) {
+        console.error(err);
         if (err.response?.data?.message) {
             setErrors({ api: err.response.data.message });
         } else {

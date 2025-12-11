@@ -40,16 +40,22 @@ public class DashboardController {
                 .filter(goal -> "To Finish".equalsIgnoreCase(goal.getStatus()))
                 .count();
 
-        // For now, healthScore and streakDays are hardcoded for simplicity for existing users.
-        // A new user will have 0 active goals.
-        // We can build more complex logic for these later.
         Map<String, Object> stats = new HashMap<>();
         stats.put("activeGoals", activeGoals);
-        stats.put("activeGoalsChange", 1); // Placeholder
-        stats.put("healthScore", activeGoals > 0 ? 92 : 0); // Placeholder
-        stats.put("healthScoreChange", activeGoals > 0 ? -3 : 0); // Placeholder
-        stats.put("streakDays", activeGoals > 0 ? 14 : 0); // Placeholder
-        stats.put("streakDaysChange", activeGoals > 0 ? 1 : 0); // Placeholder
+
+        if (activeGoals > 0) {
+            stats.put("activeGoalsChange", 1); // Placeholder
+            stats.put("healthScore", 92); // Placeholder
+            stats.put("healthScoreChange", -3); // Placeholder
+            stats.put("streakDays", 14); // Placeholder
+            stats.put("streakDaysChange", 1); // Placeholder
+        } else {
+            stats.put("activeGoalsChange", 0);
+            stats.put("healthScore", 0);
+            stats.put("healthScoreChange", 0);
+            stats.put("streakDays", 0);
+            stats.put("streakDaysChange", 0);
+        }
 
         return ResponseEntity.ok(stats);
     }
