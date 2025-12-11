@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Heart, Sparkles, LogOut, TrendingUp, Activity } from "lucide-react";
+import { Target, Heart, Sparkles, LogOut, TrendingUp, Activity, ShieldCheck } from "lucide-react";
 import api from "@/services/api";
+import { AuthContext } from "@/context/AuthContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useContext(AuthContext);
 
   const [stats, setStats] = useState([
     { label: "Active Goals", value: "0", change: "+0", icon: Target },
@@ -71,14 +73,26 @@ const Dashboard = () => {
             </div>
             <p className="text-muted-foreground text-base ml-14">Welcome back! Here's your progress overview.</p>
           </div>
-          <Button
-            onClick={() => navigate("/")}
-            variant="outline"
-            className="gap-2 rounded-lg"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-4">
+            {isAdmin && (
+              <Button
+                onClick={() => navigate("/admin")}
+                variant="premium"
+                className="gap-2 rounded-lg"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Admin
+              </Button>
+            )}
+            <Button
+              onClick={() => navigate("/")}
+              variant="outline"
+              className="gap-2 rounded-lg"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -157,5 +171,3 @@ const Dashboard = () => {
     </div>
   );
 };
-
-export default Dashboard;

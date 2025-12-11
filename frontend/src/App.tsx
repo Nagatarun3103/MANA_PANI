@@ -10,8 +10,10 @@ import GoalDomain from "./pages/GoalDomain";
 import HealthDomain from "./pages/HealthDomain";
 import Suggestions from "./pages/Suggestions";
 import NotFound from "./pages/NotFound";
+import AdminPage from "./pages/AdminPage"; // Import AdminPage
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute"; // Import AdminProtectedRoute
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 
@@ -34,6 +36,10 @@ const App = () => (
               <Route path="/goal-domain" element={<GoalDomain />} />
               <Route path="/health-domain" element={<HealthDomain />} />
               <Route path="/suggestions" element={<Suggestions />} />
+              {/* Admin Protected Route */}
+              <Route element={<AdminProtectedRoute />}>
+                <Route path="/admin" element={<AdminPage />} />
+              </Route>
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
