@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,11 @@ import { AuthContext } from "@/context/AuthContext";
 import api from "@/services/api";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
+// DEV-ONLY SAFEGUARD: The hardcoded admin credentials below are for development and testing purposes only.
+// For production, this should be removed and admin users should be managed through a secure backend interface.
+const ADMIN_USERNAME = "GRS";
+const ADMIN_PASSWORD = "GRS-Mahi";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +24,16 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (userType === "admin") {
+      setUsername(ADMIN_USERNAME);
+      setPassword(ADMIN_PASSWORD);
+    } else {
+      setUsername("");
+      setPassword("");
+    }
+  }, [userType]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +55,8 @@ const Login = () => {
           title: "Welcome back!",
           description: "Login successful",
         });
-        navigate("/dashboard");
+        // Force a full page reload to ensure all contexts are updated before rendering the new page.
+        window.location.href = "/dashboard";
     } catch (err) {
         setError('Invalid username or password for the selected role.');
         toast({
@@ -90,6 +106,7 @@ const Login = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   className="h-11"
                   placeholder="Enter your username"
+                  disabled={userType === 'admin'}
                 />
               </div>
 
@@ -106,6 +123,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-11 pr-10"
                     placeholder="Enter your password"
+                    disabled={userType === 'admin'}
                   />
                   <Button
                     type="button"
