@@ -78,6 +78,7 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/goals/**")).hasAnyRole("USER", "ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/api/health/**")).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/api/dashboard/**")).hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions().disable());

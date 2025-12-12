@@ -2,57 +2,68 @@ import { createContext, useState, useEffect, type ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import api from '@/services/api'; // Import the api instance
 
+interface AuthState {
+  token: string | null;
+  user: any | null;
+  role: string | null;
+}
+
 interface AuthContextType {
-    authTokens: { token: string | null; user: any | null; };
-    roles: string[];
+    auth: AuthState;
+    setAuth: (auth: AuthState) => void;
     isAdmin: boolean;
-    login: (token: string) => void;
     logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType>(null!)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-    const [user, setUser] = useState<any | null>(null);
-    const [roles, setRoles] = useState<string[]>([]);
+    const [auth, setAuth] = useState<AuthState>({
+        token: localStorage.getItem('auth_token'),
+        user: null,
+        role: null,
+    });
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     useEffect(() => {
-        if (token) {
+        if (auth.token) {
             try {
-                const decodedUser: any = jwtDecode(token);
-                setUser(decodedUser);
-                const userRoles = decodedUser.roles || [];
-                setRoles(userRoles);
-                setIsAdmin(userRoles.includes('ROLE_ADMIN'));
-                // Set Authorization header for all future requests
-                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                const decodedUser: any = jwtDecode(auth.token);
+                setAuth(prev => ({ ...prev, user: decodedUser, role: decodedUser.role }));
+                setIsAdmin(decodedUser.role === 'admin');
+                api.defaults.headers.common['Authorization'] = `Bearer ${auth.token}`;
             } catch (error) {
                 console.error("Invalid token");
                 logout();
             }
         } else {
-            setUser(null);
-            setRoles([]);
+            setAuth({ token: null, user: null, role: null });
             setIsAdmin(false);
-            // Remove Authorization header if no token
             delete api.defaults.headers.common['Authorization'];
         }
-    }, [token]);
+    }, [auth.token]);
 
-    const login = (newToken: string) => {
-        localStorage.setItem('token', newToken);
-        setToken(newToken);
+    const login = (newAuth: AuthState) => {
+        localStorage.setItem('auth_token', newAuth.token!);
+        setAuth(newAuth);
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        setToken(null);
+        localStorage.removeItem('auth_token');
+        setAuth({ token: null, user: null, role: null });
     };
 
+    const setAuthAndStore = (newAuth: AuthState) => {
+        if (newAuth.token) {
+            localStorage.setItem('auth_token', newAuth.token);
+        } else {
+            localStorage.removeItem('auth_token');
+        }
+        setAuth(newAuth);
+    }
+
     return (
-        <AuthContext.Provider value={{ authTokens: { token, user }, roles, isAdmin, login, logout }}>
+        <AuthContext.Provider value={{ auth, setAuth: setAuthAndStore, isAdmin, logout }}>
             {children}
         </AuthContext.Provider>
     );

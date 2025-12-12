@@ -21,7 +21,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [userType, setUserType] = useState("user");
   const [error, setError] = useState('');
-  const { login } = useContext(AuthContext);
+  const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,13 +50,14 @@ const Login = () => {
 
     try {
         const response = await api.post('/auth/login', { username, password, userType });
-        login(response.data.token);
+        const { token, user, role } = response.data;
+        localStorage.setItem('auth_token', token);
+        setAuth({ token, user, role });
         toast({
           title: "Welcome back!",
           description: "Login successful",
         });
-        // Force a full page reload to ensure all contexts are updated before rendering the new page.
-        window.location.href = "/dashboard";
+        navigate('/dashboard', { replace: true });
     } catch (err) {
         setError('Invalid username or password for the selected role.');
         toast({
