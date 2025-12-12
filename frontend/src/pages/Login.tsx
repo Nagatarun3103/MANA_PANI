@@ -4,14 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { TrendingUp, User, Lock } from "lucide-react";
+import { TrendingUp, User, Lock, Eye, EyeOff } from "lucide-react";
 import loginHero from "@/assets/login-minimal.jpg";
 import { AuthContext } from "@/context/AuthContext";
 import api from "@/services/api";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [userType, setUserType] = useState("user"); // State for user type
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -31,7 +34,7 @@ const Login = () => {
     }
 
     try {
-        const response = await api.post('/auth/login', { username, password });
+        const response = await api.post('/auth/login', { username, password, userType });
         login(response.data.token);
         toast({
           title: "Welcome back!",
@@ -95,14 +98,52 @@ const Login = () => {
                   <Lock className="w-4 h-4 text-muted-foreground" />
                   Password
                 </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-11"
-                  placeholder="Enter your password"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-11 pr-10"
+                    placeholder="Enter your password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* User Type Selection */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  Login as
+                </Label>
+                <RadioGroup
+                  defaultValue="user"
+                  value={userType}
+                  onValueChange={(value: string) => setUserType(value)}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="user" id="user" />
+                    <Label htmlFor="user">User</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="admin" id="admin" />
+                    <Label htmlFor="admin">Admin</Label>
+                  </div>
+                </RadioGroup>
               </div>
 
               {error && <p className="text-sm font-medium text-destructive">{error}</p>}
