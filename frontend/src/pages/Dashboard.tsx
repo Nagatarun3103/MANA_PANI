@@ -19,7 +19,7 @@ const Dashboard = () => {
     const fetchStats = async () => {
       try {
         const response = await api.get('/api/dashboard/stats');
-        const data = response.data;
+        const data = response.data.stats;
         setStats([
           { label: "Active Goals", value: data.activeGoals.toString(), change: `+${data.activeGoalsChange}`, icon: Target },
           { label: "Health Score", value: `${data.healthScore}%`, change: `${data.healthScoreChange > 0 ? '+' : ''}${data.healthScoreChange}%`, icon: Heart },

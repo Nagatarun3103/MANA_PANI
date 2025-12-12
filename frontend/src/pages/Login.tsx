@@ -50,14 +50,25 @@ const Login = () => {
 
     try {
         const response = await api.post('/auth/login', { username, password, userType });
-        const { token, user, role } = response.data;
+        const data = response.data; // Use a variable for response.data for safer checks
+
+        if (!data || !data.token) {
+            throw new Error("No token returned from login API");
+        }
+
+        const { token, user, role } = data;
         localStorage.setItem('auth_token', token);
         setAuth({ token, user, role });
         toast({
           title: "Welcome back!",
           description: "Login successful",
         });
-        navigate('/dashboard', { replace: true });
+        try {
+            navigate('/dashboard', { replace: true });
+        } catch (e) {
+            console.error("Navigation failed, falling back to window.location.assign", e);
+            window.location.assign('/dashboard');
+        }
     } catch (err) {
         setError('Invalid username or password for the selected role.');
         toast({

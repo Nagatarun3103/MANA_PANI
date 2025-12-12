@@ -57,6 +57,10 @@ public class DashboardController {
             stats.put("streakDaysChange", 0);
         }
 
-        return ResponseEntity.ok(stats);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("success", true);
+        responseBody.put("stats", stats);
+
+        return ResponseEntity.ok(responseBody);
     }
 }

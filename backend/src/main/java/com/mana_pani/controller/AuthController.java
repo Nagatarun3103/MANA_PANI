@@ -26,8 +26,9 @@ import org.springframework.web.bind.annotation.*;
 import com.mana_pani.dto.ForgotPasswordRequest;
 import com.mana_pani.dto.ResetPasswordRequest;
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -80,11 +81,20 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
+        // Extract the main role for the frontend (assuming one primary role for simplicity)
+        String primaryRole = roles.isEmpty() ? "USER" : roles.get(0).replace("ROLE_", "");
+
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("success", true);
+        responseBody.put("token", jwt);
+        responseBody.put("user", Map.of(
+                "id", userDetails.getId(),
+                "username", userDetails.getUsername(),
+                "email", userDetails.getEmail()
+        ));
+        responseBody.put("role", primaryRole.toLowerCase()); // Frontend typically uses lowercase roles
+
+        return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping("/signup")
