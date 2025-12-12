@@ -13,8 +13,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
-  const [userType, setUserType] = useState("user"); // State for user type
+  const [showPassword, setShowPassword] = useState(false);
+  const [userType, setUserType] = useState("user");
   const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!username || !password) {
       toast({
         title: "Error",
@@ -42,10 +42,10 @@ const Login = () => {
         });
         navigate("/dashboard");
     } catch (err) {
-        setError('Invalid username or password.');
+        setError('Invalid username or password for the selected role.');
         toast({
           title: "Error",
-          description: "Invalid username or password.",
+          description: "Invalid username or password for the selected role.",
           variant: "destructive",
         });
     }
@@ -76,7 +76,7 @@ const Login = () => {
             <h2 className="text-xl font-semibold mb-6 text-foreground">
               Welcome back
             </h2>
-            
+
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-medium flex items-center gap-2">
@@ -123,16 +123,14 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* User Type Selection */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">
-                  <User className="w-4 h-4 text-muted-foreground" />
                   Login as
                 </Label>
                 <RadioGroup
                   defaultValue="user"
                   value={userType}
-                  onValueChange={(value: string) => setUserType(value)}
+                  onValueChange={setUserType}
                   className="flex gap-4"
                 >
                   <div className="flex items-center space-x-2">
