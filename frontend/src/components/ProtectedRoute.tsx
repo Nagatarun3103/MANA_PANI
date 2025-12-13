@@ -5,7 +5,7 @@ import { AuthContext } from '@/context/AuthContext';
 const ProtectedRoute = () => {
     const { authTokens } = useContext(AuthContext);
 
-    return authTokens.token ? <Outlet /> : <Navigate to="/" />;
+    return authTokens && authTokens.token ? <Outlet /> : <Navigate to="/" />;
 };
 
 export default ProtectedRoute;
