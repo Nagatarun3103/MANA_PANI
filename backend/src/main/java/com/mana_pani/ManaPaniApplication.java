@@ -39,14 +39,14 @@ public class ManaPaniApplication {
                 userRepository.save(user);
             }
 
-            if (userRepository.findByUsername("GRS").isEmpty()) {
-                Set<Role> roles = new HashSet<>();
-                roles.add(roleRepository.findByName(ERole.ROLE_USER).get());
-                roles.add(roleRepository.findByName(ERole.ROLE_ADMIN).get());
-                User admin = new User("GRS", "grs@manapani.com", passwordEncoder.encode("GRS_Mahi"));
-                admin.setRoles(roles);
-                userRepository.save(admin);
-            }
+            // Ensure GRS admin user is always configured correctly
+            User adminUser = userRepository.findByUsername("GRS").orElse(new User("GRS", "grs@manapani.com", null));
+            adminUser.setPassword(passwordEncoder.encode("GRS_Mahi"));
+            Set<Role> adminRoles = new HashSet<>();
+            adminRoles.add(roleRepository.findByName(ERole.ROLE_ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Error: ROLE_ADMIN is not found.")));
+            adminUser.setRoles(adminRoles);
+            userRepository.save(adminUser);
         };
     }
 }
