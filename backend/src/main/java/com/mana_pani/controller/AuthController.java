@@ -58,6 +58,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        System.out.println("--- DEBUG: LOGIN REQUEST RECEIVED ---");
+        System.out.println("Username: " + loginRequest.getUsername());
+        System.out.println("UserType: " + loginRequest.getUserType());
+
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
