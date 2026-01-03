@@ -1,0 +1,1 @@
+// This file is intentionally left blank. CORS configuration is now handled in ManaPaniApplication.java
