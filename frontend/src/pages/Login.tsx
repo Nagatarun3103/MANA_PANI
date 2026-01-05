@@ -12,9 +12,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // DEV-ONLY SAFEGUARD: The hardcoded admin credentials below are for development and testing purposes only.
 // For production, this should be removed and admin users should be managed through a secure backend interface.
-const ADMIN_USERNAME = "GRS";
-const ADMIN_PASSWORD = "GRS-Mahi";
-
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,16 +21,6 @@ const Login = () => {
   const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (userType === "admin") {
-      setUsername(ADMIN_USERNAME);
-      setPassword(ADMIN_PASSWORD);
-    } else {
-      setUsername("");
-      setPassword("");
-    }
-  }, [userType]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +37,7 @@ const Login = () => {
 
     try {
         const response = await api.post('/auth/login', { username, password, userType });
-        const data = response.data; // Use a variable for response.data for safer checks
+        const data = response.data; 
 
         if (!data || !data.token) {
             throw new Error("No token returned from login API");
@@ -118,7 +105,6 @@ const Login = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   className="h-11"
                   placeholder="Enter your username"
-                  disabled={userType === 'admin'}
                 />
               </div>
 
@@ -133,6 +119,9 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="h-11 pr-10"
+                    placeholder="Enter your password"
+                  />t.value)}
                     className="h-11 pr-10"
                     placeholder="Enter your password"
                     disabled={userType === 'admin'}
