@@ -38,7 +38,8 @@ public class AdminUserInitializer {
         // Find or create GRS user and set/reset their details
         User adminUser = userRepository.findByUsername("GRS").orElse(new User());
         adminUser.setUsername("GRS");
-        adminUser.setPassword(passwordEncoder.encode("GRS-Mahi"));
+        String adminPassword = "testpassword"; // Changed to a generic test password
+        adminUser.setPassword(passwordEncoder.encode(adminPassword));
         adminUser.setEmail("grs@example.com"); // Dummy email
 
         Set<Role> roles = new HashSet<>();
@@ -46,5 +47,12 @@ public class AdminUserInitializer {
         adminUser.setRoles(roles);
 
         userRepository.save(adminUser);
+
+        System.out.println("--- Admin User Initialized ---");
+        System.out.println("Username: " + adminUser.getUsername());
+        System.out.println("Password: " + adminPassword); // Log the plain text password for debugging
+        System.out.println("Email: " + adminUser.getEmail());
+        System.out.println("Roles: " + adminUser.getRoles());
+        System.out.println("------------------------------");
     }
 }
