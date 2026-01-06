@@ -121,10 +121,6 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-11 pr-10"
                     placeholder="Enter your password"
-                  />t.value)}
-                    className="h-11 pr-10"
-                    placeholder="Enter your password"
-                    disabled={userType === 'admin'}
                   />
                   <Button
                     type="button"
