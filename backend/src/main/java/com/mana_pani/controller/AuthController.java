@@ -99,6 +99,7 @@ public class AuthController {
         ));
         responseBody.put("role", primaryRole.toLowerCase()); // Frontend typically uses lowercase roles
 
+        System.out.println("--- DEBUG: Login successful, returning response body: " + responseBody + " ---");
         return ResponseEntity.ok(responseBody);
     }
 
