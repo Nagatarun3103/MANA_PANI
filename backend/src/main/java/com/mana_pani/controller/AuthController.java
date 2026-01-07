@@ -70,8 +70,13 @@ public class AuthController {
         
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
+        // --- DEBUG: Log roles ---
+        System.out.println("--- DEBUG: Authenticated user: " + userDetails.getUsername() + " ---");
+        System.out.println("--- DEBUG: User authorities: " + userDetails.getAuthorities() + " ---");
+
         // Role validation
         String requestedRole = loginRequest.getUserType().equalsIgnoreCase("admin") ? "ROLE_ADMIN" : "ROLE_USER";
+        System.out.println("--- DEBUG: Requested role from frontend: " + requestedRole + " ---");
         boolean hasRole = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(role -> role.equals(requestedRole));
