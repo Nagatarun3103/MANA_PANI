@@ -1,26 +1,16 @@
 package com.mana_pani.security;
 
-import com.mana_pani.security.jwt.AuthEntryPointJwt;
-import com.mana_pani.security.jwt.AuthTokenFilter;
-import com.mana_pani.security.services.UserDetailsServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.core.annotation.Order;
 import java.util.Arrays;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableMethodSecurity
@@ -53,7 +43,7 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -66,22 +56,36 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().configurationSource(corsConfigurationSource()).and()
-                .csrf(csrf -> csrf.disable())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/test/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/api/goals/**")).hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/api/health/**")).hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/api/dashboard/**")).hasAnyRole("USER", "ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .headers(headers -> headers.frameOptions().disable());
+    @Order(1)
+    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/auth/**", "/h2-console/**", "/test/**")
+            .cors(withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain privateFilterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/goals/**")).hasAnyRole("USER", "ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/health/**")).hasAnyRole("USER", "ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/dashboard/**")).hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated()
+            )
+            .headers(headers -> headers.frameOptions().disable());
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
