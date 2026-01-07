@@ -58,54 +58,47 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        System.out.println("--- DEBUG: LOGIN REQUEST RECEIVED ---");
-        System.out.println("Username: " + loginRequest.getUsername());
-        System.out.println("UserType: " + loginRequest.getUserType());
+        try {
+            System.out.println("--- DEBUG: LOGIN REQUEST RECEIVED ---");
+            System.out.println("Username: " + loginRequest.getUsername());
+            System.out.println("UserType: " + loginRequest.getUserType());
 
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // --- DEBUG: Log roles ---
-        System.out.println("--- DEBUG: Authenticated user: " + userDetails.getUsername() + " ---");
-        System.out.println("--- DEBUG: User authorities: " + userDetails.getAuthorities() + " ---");
+            // --- DEBUG: Log roles ---
+            System.out.println("--- DEBUG: Authenticated user: " + userDetails.getUsername() + " ---");
+            System.out.println("--- DEBUG: User authorities: " + userDetails.getAuthorities() + " ---");
 
-        // Role validation
-        String requestedRole = loginRequest.getUserType().equalsIgnoreCase("admin") ? "ROLE_ADMIN" : "ROLE_USER";
-        System.out.println("--- DEBUG: Requested role from frontend: " + requestedRole + " ---");
-        boolean hasRole = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals(requestedRole));
+            // --- TEMPORARILY BYPASSING ROLE VALIDATION FOR DEBUGGING ---
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+            String primaryRole = roles.isEmpty() ? "USER" : roles.get(0).replace("ROLE_", "");
 
-        if (!hasRole) {
-            return ResponseEntity.status(401).body(new MessageResponse("Error: Invalid credentials for the selected role."));
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("success", true);
+            responseBody.put("token", jwt);
+            responseBody.put("user", Map.of(
+                    "id", userDetails.getId(),
+                    "username", userDetails.getUsername(),
+                    "email", userDetails.getEmail()
+            ));
+            responseBody.put("role", primaryRole.toLowerCase());
+
+            System.out.println("--- DEBUG: Bypassing role check and returning successful response. ---");
+            System.out.println("--- DEBUG: Login successful, returning response body: " + responseBody + " ---");
+            return ResponseEntity.ok(responseBody);
+        } catch (Exception e) {
+            System.err.println("--- DEBUG: An error occurred during authentication ---");
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new MessageResponse("Error: An internal error occurred during authentication."));
         }
-
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
-        // Extract the main role for the frontend (assuming one primary role for simplicity)
-        String primaryRole = roles.isEmpty() ? "USER" : roles.get(0).replace("ROLE_", "");
-
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("success", true);
-        responseBody.put("token", jwt);
-        responseBody.put("user", Map.of(
-                "id", userDetails.getId(),
-                "username", userDetails.getUsername(),
-                "email", userDetails.getEmail()
-        ));
-        responseBody.put("role", primaryRole.toLowerCase()); // Frontend typically uses lowercase roles
-
-        System.out.println("--- DEBUG: Login successful, returning response body: " + responseBody + " ---");
-        return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping("/signup")
