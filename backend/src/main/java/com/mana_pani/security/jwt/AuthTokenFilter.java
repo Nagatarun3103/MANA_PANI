@@ -28,6 +28,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        logger.info("AuthTokenFilter processing request URI: {}", request.getRequestURI());
         logger.info("Processing request to: {}", request.getRequestURI());
         logger.info("Authorization Header: {}", request.getHeader("Authorization"));
         try {
