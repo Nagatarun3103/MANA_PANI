@@ -39,14 +39,7 @@ public class ManaPaniApplication {
                 userRepository.save(user);
             }
 
-            // Ensure GRS admin user is always configured correctly
-            User adminUser = userRepository.findByUsername("GRS").orElse(new User("GRS", "grs@manapani.com", null));
-            adminUser.setPassword(passwordEncoder.encode("GRS_Mahi"));
-            Set<Role> adminRoles = new HashSet<>();
-            adminRoles.add(roleRepository.findByName(ERole.ROLE_ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Error: ROLE_ADMIN is not found.")));
-            adminUser.setRoles(adminRoles);
-            userRepository.save(adminUser);
+
         };
     }
 }
