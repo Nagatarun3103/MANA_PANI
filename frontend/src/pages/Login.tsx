@@ -56,13 +56,22 @@ const Login = () => {
             console.error("Navigation failed, falling back to window.location.assign", e);
             window.location.assign('/dashboard');
         }
-    } catch (err) {
-        setError('Invalid username or password for the selected role.');
-        toast({
-          title: "Error",
-          description: "Invalid username or password for the selected role.",
-          variant: "destructive",
-        });
+    } catch (error: any) {
+        if (error.response?.status === 401) {
+            setError('Invalid username or password');
+            toast({
+              title: "Error",
+              description: "Invalid username or password",
+              variant: "destructive",
+            });
+        } else {
+            setError('Server unavailable. Try again later.');
+            toast({
+              title: "Error",
+              description: "Server unavailable. Try again later.",
+              variant: "destructive",
+            });
+        }
     }
   };
 
