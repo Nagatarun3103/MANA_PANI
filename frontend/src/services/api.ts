@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '', // use relative URLs so deployed site calls same origin
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
 });
 

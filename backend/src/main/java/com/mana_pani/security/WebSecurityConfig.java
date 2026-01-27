@@ -59,7 +59,12 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://mana-pani-1.onrender.com"));
+        // WARNING: Replace with your actual backend URL in production
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173", // Local dev server
+            "https://mana-pani-1.onrender.com", // Deployed frontend
+            "https://your-backend-service-name.onrender.com" // Deployed backend
+        ));
         configuration.setAllowCredentials(true);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
