@@ -77,7 +77,7 @@ public class WebSecurityConfig {
     @Order(1)
     public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/auth/**", "/h2-console/**", "/test/**")
+            .securityMatcher("/", "/api/auth/**", "/h2-console/**", "/test/**")
             .cors(withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
