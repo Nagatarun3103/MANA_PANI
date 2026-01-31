@@ -103,7 +103,7 @@ public class WebSecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/dashboard/**")).hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
-            .headers(headers -> headers.frameOptions().disable());
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
