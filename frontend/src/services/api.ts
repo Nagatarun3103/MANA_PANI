@@ -20,10 +20,9 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err?.response?.status === 401) {
-      // invalid token: clear storage and redirect to login
-      localStorage.removeItem('auth_token');
-      // optional: clear context via window.dispatchEvent or a global handler
-      try { window.location.assign('/login'); } catch (e) { /* ignore */ }
+      // The AuthContext handles token removal and state updates.
+      // Dispatch a global event that the AuthContext is listening for.
+      window.dispatchEvent(new Event('logout-event'));
     }
     return Promise.reject(err);
   }

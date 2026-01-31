@@ -43,6 +43,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [auth.token]);
 
+    useEffect(() => {
+        const handleLogoutEvent = () => {
+            logout();
+        };
+
+        window.addEventListener('logout-event', handleLogoutEvent);
+
+        return () => {
+            window.removeEventListener('logout-event', handleLogoutEvent);
+        };
+    }, []);
+
     const login = (newAuth: AuthState) => {
         localStorage.setItem('auth_token', newAuth.token!);
         setAuth(newAuth);
