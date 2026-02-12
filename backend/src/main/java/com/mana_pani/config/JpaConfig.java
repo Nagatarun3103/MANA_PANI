@@ -25,7 +25,7 @@ public class JpaConfig {
     private JpaProperties jpaProperties;
 
     @Bean
-    @DependsOn("flyway") // Ensure Flyway migrations run before EntityManagerFactory is initialized
+    @DependsOn("flywayInitializer") // Ensure Flyway migrations run before EntityManagerFactory is initialized
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder) {
         Map<String, Object> properties = new HashMap<>(this.jpaProperties.getProperties());
         // You might need to add specific Hibernate properties here if not picked up from application.properties
